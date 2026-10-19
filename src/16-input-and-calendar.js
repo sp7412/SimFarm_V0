@@ -607,6 +607,7 @@ function finishMonthBoundary(priorDisplay, continuation = null) {
       rollAnnualFieldSchedule();
       state.year += 1;
       enteredNewYear = true;
+      if (advanceConservationContracts()) mapDirty = true;
       state.bankInterestRate = (nextSimSecondaryRandom() & 7) + 8;
       resetAnnualRainfallEvents();
       state.weatherCategoryCycle = ((state.weatherCategoryCycle ?? 0) + 1) % 5;
@@ -1056,6 +1057,26 @@ canvas.addEventListener("pointermove", (event) => {
   updateMenuHover(pointer);
   render();
 });
+canvas.addEventListener(
+  "wheel",
+  (event) => {
+    if (
+      stage !== "game" ||
+      activeWindow ||
+      modalNotice ||
+      currentMenu !== null ||
+      !editVisible
+    )
+      return;
+    const point = gameWindowPoint(canvasPoint(event), editWindowSentinel);
+    if (point.x < 64 || point.x >= 608 || point.y < 80 || point.y >= 448)
+      return;
+    setCameraZoomAtPoint(point, event.deltaY);
+    event.preventDefault();
+    render();
+  },
+  { passive: false },
+);
 canvas.addEventListener("pointerdown", (event) => {
   canvas.focus({ preventScroll: true });
   // Browsers can reject the automatic AMAIN start before the first user
@@ -1344,6 +1365,23 @@ canvas.addEventListener("keydown", (event) => {
     applyGlobalControlShortcut(event);
     const eventCardOpened = handleDebugEventScanKey(event);
     if (eventCardOpened) render();
+    event.preventDefault();
+    return;
+  }
+  if (
+    stage === "game" &&
+    !activeWindow &&
+    !modalNotice &&
+    (event.key === "+" ||
+      event.key === "=" ||
+      event.key === "-" ||
+      event.key === "_")
+  ) {
+    setCameraZoomAtPoint(
+      gameWindowPoint(pointer, editWindowSentinel),
+      event.key === "+" || event.key === "=" ? -1 : 1,
+    );
+    render();
     event.preventDefault();
     return;
   }
