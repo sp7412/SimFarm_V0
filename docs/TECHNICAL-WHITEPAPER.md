@@ -358,3 +358,40 @@ testing has not been performed.
   (accessed 2026-10-19). Used only to describe the real program's broad purpose
   and typical term; no detailed regulation is encoded in this game.
 - Separate 2014 classroom project: [dkim0419/SimFarm](https://github.com/dkim0419/SimFarm).
+
+## Additional gameplay audit and regression matrix
+
+The Pete Kim remake's correction ledger is a source of audit candidates, not proof
+that its behaviors match the original DOS release. The following checks are the
+next gameplay-correctness pass for this repository. They are deliberately listed
+as **pending verification** until the corresponding code path and regression
+assertion are changed and run in this repository.
+
+| Area | Regression scenario | Required invariant |
+|---|---|---|
+| Bank arrears | Pay a missed installment, then repay the loan in full | The arrears balance and delinquency countdown clear exactly once; repayment expense is posted once; a fully paid loan has no stale late-payment state |
+| Crop revenue | Harvest a field, sell stored crops, and sell through a futures/contract path | Each economic event posts to its intended revenue ledger once; cash, stored-crop sales, and taxable-sale totals reconcile without counting a harvest as a sale |
+| Financial reports | Compare source ledgers with Balance Sheet / evaluation totals after crop, machine, livestock, land, and contract transactions | Every displayed subtotal has a defined source ledger; omitted or double-counted categories are caught by fixtures |
+| Operating expenses | Advance weeks with active machinery and workers, then begin the next accounting period | Per-period expenses reset at the correct boundary while cumulative totals remain stable; no expense is silently dropped or carried forward twice |
+| Wind damage | Hold windstorm conditions across multiple maintenance ticks and vary windbreak coverage | Damage follows the intended event cadence, counts windbreak protection consistently, and stops when the event ends |
+| Weather and crop stress | Exercise low-water conditions and the year-end temperature boundary | Warnings correspond to the actual field/weather state; the calendar transition does not use a stale temperature |
+| Stored-crop loss | Save/load stored crops with loss-rate flags set and unset | Loss behavior follows the serialized flags and survives round trips |
+| Forced-sale accounting | Trigger debt collection and forced liquidation of multiple asset types | Proceeds and debt expenses use the correct categories; balances cannot become negative through duplicate settlement |
+| Demolition accounting | Remove recreation/airport structures after placing them and verify environmental-grid flags | Structure counts, ownership/value, and environmental-grid bits are updated together and only once |
+
+### Validation policy for this pass
+
+- Do not call a candidate fixed solely because the comparison repository fixes it.
+- For each implemented correction, add a deterministic regression assertion to the
+  narrowest existing test suite or a dedicated suite and register it in
+  `tests/run.cjs`.
+- Run `npm test`, `npm run format:check`, `npm run build`, and
+  `git diff --check` against the final gameplay commit. Record exact command
+  outcomes and the commit SHA that was tested.
+- The branch's previously recorded local result was 10 passing regression suites,
+  with build/format checks passing. That is the baseline, **not** a test result
+  for the pending scenarios above.
+- GitHub Actions previously stopped at the fork workflow-approval gate before
+  jobs were created. A maintainer must approve the workflows before those checks
+  can provide CI evidence. Native Android/iOS builds and interactive browser or
+  device testing remain separate validation tasks.
