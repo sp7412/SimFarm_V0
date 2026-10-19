@@ -1,6 +1,6 @@
 # Active Goal Checkpoint
 
-Updated 2026-10-19 after the local review and regression pass. Resume the full
+Updated 2026-10-19 after pushing implementation and documentation commits. Resume the full
 SimFarm engineering mission from this worktree; preserve all edits and keep the
 pull request unmerged.
 
@@ -8,19 +8,19 @@ pull request unmerged.
 
 - Repository: `/workspaces/SimFarm_V0`; branch:
   `codex/simfarm-improvements`.
-- HEAD: `f7f62eb` — `Add zoom, crop insurance, and conservation mechanics`.
-  It contains the implementation, generated bundle, and regression tests.
-- `origin/codex/simfarm-improvements` remains at `0a36587`; upstream `main` is
-  `3fec6a6`. The code commit is not pushed. Documentation changes and this
-  checkpoint remain uncommitted; nothing is staged.
+- HEAD and `origin/codex/simfarm-improvements`: `f465f12` — `Document REA
+  findings and save extension behavior`. Implementation/tests are in
+  `f7f62eb` — `Add zoom, crop insurance, and conservation mechanics`. Upstream
+  `main` is `3fec6a6`. The branch has been pushed.
 - PR #1 is open at https://github.com/worldengine-space/SimFarm_V0/pull/1,
-  base `main`, head `codex/simfarm-improvements` at `0a36587`; GitHub lists no
-  checks and reports `UNSTABLE`. Earlier workflows were `action_required`; the
-  workflow-approval endpoint returned HTTP 403 `Resource not accessible by
-  integration`. Recheck after pushing.
-- Remaining tracked changes are `README.md`, `docs/PLATFORMS.md`,
-  `docs/TECHNICAL-WHITEPAPER.md`, Android README, and iOS README, plus the one
-  unrelated Android test edit. `docs/goal-progress.md` is untracked.
+  base `main`, head `codex/simfarm-improvements` at `f465f12`; its title and body
+  were updated with the full scope and validation. At this SHA the Check, Windows,
+  iOS, and Android workflows all completed as `action_required` with zero jobs;
+  this is a GitHub approval gate, not a reported test failure. The workflow
+  approval endpoint returned HTTP 403 `Resource not accessible by integration`.
+  PR status is `UNSTABLE`; recheck after any new push.
+- Only the unrelated Android test edit and this progress-file update remain in
+  the worktree; the Android edit stays unstaged and excluded.
 - Preserve and exclude `platforms/android/app/src/androidTest/java/space/worldengine/simfarm/LaunchSmokeTest.java`
   from commits. Its existing unrelated change adds a `∏` character after the
   Activity import. No other unrelated edits have been identified.
@@ -76,20 +76,18 @@ After the latest code changes, these commands passed on 2026-10-19:
 The web build and Node/Canvas harness ran, but no local Chromium/Firefox or
 Playwright/Puppeteer is installed; interactive browser/device testing was not
 performed. Android SDK is not configured. Swift, Xcode, and XcodeGen are
-unavailable, so iOS native compilation needs CI or macOS. Java and Gradle are
-present. GitHub CI has not yet been triggered for this worktree because it is
-not pushed.
+unavailable, so iOS native compilation needs CI or macOS. Java and Gradle are present. GitHub Actions created pull-request runs, but
+all four were blocked before job creation by `action_required`; details are
+recorded above. Local validation passes independently.
 
 ## Remaining lifecycle
 
-1. Final-audit and commit the remaining README, platform notes, whitepaper, and
-   this checkpoint. Continue excluding the unrelated Android test edit.
-2. Push the branch to `origin/codex/simfarm-improvements` and update PR #1 with
-   methods, findings, features, compatibility, executed checks, CI status, and
-   limitations.
-3. Recheck PR head/base and all CI results. Fix implementation failures where
-   feasible; leave the PR unmerged.
-4. Audit the full mission criteria before marking the Goal complete. Additional
-   historical save fixtures and interactive desktop/touch play remain useful
-   follow-up validation, beyond the eight included fixtures and current
-   headless evidence.
+1. Commit and push this final checkpoint update, excluding the unrelated Android
+   test edit.
+2. Recheck PR head/base and CI after that push. The only external gate is
+   maintainer approval for the four `action_required` workflows; the integration
+   cannot approve them (403). Do not request approval by messaging maintainers.
+3. Leave PR #1 unmerged. Audit the original Goal criteria and report the exact
+   external CI gate plus the completed local evidence. Additional historical
+   save fixtures and interactive desktop/touch play remain useful follow-up
+   validation beyond the eight included fixtures and current headless evidence.
