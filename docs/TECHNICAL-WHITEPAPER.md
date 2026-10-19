@@ -27,9 +27,12 @@ entry was verified dynamically as
 [`msdos_SimFarm_1993`](https://archive.org/details/msdos_SimFarm_1993). Its
 [metadata endpoint](https://archive.org/metadata/msdos_SimFarm_1993) identifies
 Maxis Software Inc. as publisher, Leaping Lizard Software, Inc. as developer,
-and 1993 as release year. The entry contains a 1.2 MB ZIP, emulator screenshots,
-and metadata; it is a software preservation record, not a manual. No game image
-or executable was downloaded for this review.
+and 1993 as release year. The entry contains a 1,228,388-byte ZIP,
+`SimFarm_1993.zip`, plus emulator screenshots and metadata; it is a software
+preservation record, not a manual. The ZIP's catalog SHA-1 is
+`7cb061401da04759db63fd4c97b7fdef592b7d96`. For the REA analysis below, that
+archive was downloaded to `/tmp`, its SHA-1 was checked against the catalog,
+and only `SimFarm/SIMFARM.EXE` was extracted. Neither file is in the repository.
 
 The catalog search also found Maxis's German DOS manual and quick-start card:
 [`simfarm-handbuch`](https://archive.org/details/simfarm-handbuch) and
@@ -53,33 +56,105 @@ Search did not surface a licensed, compatible decompilation or reconstruction
 that would improve this code. No third-party code was copied and no dependency
 was added.
 
+### REA and the original executable
+
+REA was inspected at [morluto/rea](https://github.com/morluto/rea), an MIT-
+licensed project. Its pinned npm package, `rea-agents@6.7.0`, and Ghidra were
+installed under `/tmp`, outside the worktree. The exercised workflow was REA's
+documented Ghidra provider for DOS MZ: it imports an immutable target copy into
+an ephemeral project, analyzes it as `x86:LE:16:Real Mode`, and deletes the
+project when the CLI request ends. REA's installation and DOS guides specify
+Ghidra 12.1.x and a full 64-bit JDK 21 or newer. Ghidra 12.1.4's official
+release archive SHA-256 was checked before extraction. `rea doctor
+--provider ghidra --json` reported the Ghidra installation, Linux x64 native
+decompiler, and JDK as healthy; its overall environment flag remained false
+because unrelated Hopper/IDA integrations and agent registrations are not
+configured.
+
+Artifact provenance and identity:
+
+- Internet Archive item: [`msdos_SimFarm_1993`](https://archive.org/details/msdos_SimFarm_1993),
+  metadata at <https://archive.org/metadata/msdos_SimFarm_1993>.
+- Catalog archive: `SimFarm_1993.zip`, 1,228,388 bytes, catalog SHA-1
+  `7cb061401da04759db63fd4c97b7fdef592b7d96`; locally verified after download.
+- Analyzed file: `SimFarm/SIMFARM.EXE`, 621,735 bytes, SHA-256
+  `f497c6ffe5a6b729d3c48c431a1285b1b6c1e890313b9d5081b4f4cba399dd0a`.
+- Local analysis copies and JSON outputs were kept in `/tmp/simfarm-research`;
+  the proprietary executable was not executed or committed.
+
+REA identified the executable as DOS MZ / x86. `rea inspect` completed Ghidra
+auto-analysis and reported 44 memory blocks, 536 procedure records, and 25
+Ghidra-defined strings. A literal/regex inventory search for gameplay terms
+found no semantic procedure names and only two incidental string matches;
+this is limited to Ghidra's defined-string inventory and is not evidence that
+the game lacks those mechanics. The entry is at CS:IP `276Eh:076Ch`, represented
+by REA as linear address `0x37e4c`. Its Ghidra dossier shows DOS memory/stack
+setup and a far transfer to `0x1086e`; that unnamed routine makes DOS interrupt
+calls, initializes memory, and calls further unnamed routines. These are
+startup observations, not gameplay findings. No crop, weather, price,
+insurance, or camera algorithm was confidently attributed to a function.
+
+`rea inspect-native-load-image` returned `verified` with all 354 checks
+matched. It measured a 9,728-byte MZ header, 173,406 initialized module bytes,
+2,372 relocation records, and 438,601 bytes appended beyond the MZ-declared
+module. REA explicitly excludes these appended bytes from initialized MZ
+memory; their role and whether the running game loads them as overlays remain
+unresolved. Ghidra also emitted 16-bit decompiler and control-flow warnings.
+Static inspection does not emulate DOS/BIOS interrupts, self-modifying code,
+or runtime overlay loading, and Ghidra's function boundaries and pseudocode
+are hypotheses rather than original source. Therefore the REA findings support
+format and startup characterization, but they do not establish historical
+gameplay semantics or justify a gameplay change. The accounting correction
+below remains based on the current reconstruction's transaction flow and
+regression test, not on a claim about the original binary.
+
+Reproduction outline (downloads stay outside the repository):
+
+```sh
+npm install --prefix /tmp/simfarm-rea --ignore-scripts --no-optional --save-exact rea-agents@6.7.0
+export GHIDRA_INSTALL_DIR=/tmp/simfarm-rea-tools/ghidra_12.1.4_PUBLIC
+/tmp/simfarm-rea/node_modules/.bin/rea doctor --provider ghidra --json
+/tmp/simfarm-rea/node_modules/.bin/rea inspect /path/to/SIMFARM.EXE --provider ghidra --json
+/tmp/simfarm-rea/node_modules/.bin/rea inspect-native-load-image /path/to/SIMFARM.EXE --provider ghidra --json
+/tmp/simfarm-rea/node_modules/.bin/rea function /path/to/SIMFARM.EXE 0x37e4c --provider ghidra --json
+```
+
+Acquire the artifact from its cited Internet Archive record, verify its catalog
+hash, and extract only the needed executable before running these commands.
+The official [Ghidra release](https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_12.1.4_build)
+used here was `ghidra_12.1.4_PUBLIC_20260921.zip`, SHA-256
+`ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db`.
+REA references: [license](https://github.com/morluto/rea/blob/main/LICENSE),
+[installation](https://github.com/morluto/rea/blob/main/docs/installation.md),
+[DOS MZ workflow](https://github.com/morluto/rea/blob/main/docs/ghidra-dos.md),
+and [native investigation](https://github.com/morluto/rea/blob/main/docs/native-investigation.md).
+
 ### Current-source findings
 
-- **Source verified:** the fixed farm viewport uses 16-pixel map cells; farm
-  drawing, placement, hit tests, crop footprints, disaster overlays, and the
-  cursor all share those assumptions. The Map window supplies an overview and
-  analytical views, and its pointer navigation selects a camera origin. Arrow
-  controls and edge scrolling also move the camera.
+- **Source verified:** at 100% zoom the farm viewport uses 16-pixel map cells.
+  Tile drawing, placement, hit tests, crop footprints, disaster overlays, and
+  the cursor share one zoom-aware cell transform. The Map window supplies an
+  overview and analytical views, and its pointer navigation selects a camera
+  origin. Arrow controls and edge scrolling also move the camera.
 - **Source verified:** harvest contracts (futures) have price settlement and
-  balance-sheet entries. Weather and disaster routines damage crops. There is
-  no insurance policy, premium, claim, or payout state or flow in `src/`.
+  balance-sheet entries. Weather and disaster routines damage crops. The
+  original reconstruction had no insurance state; this branch adds optional
+  fictional insurance, not attributed to the 1993 game.
 - **Source verified:** land parcels have ownership state, and buying and selling
-  land are implemented. There is no conservation enrollment or recurring
-  contract state.
-- **Inference:** adding zoom would require coordinated changes to rendering,
-  map-cell transforms, object placement, overlays, and pointer hit testing.
-  Because no primary reference reviewed here establishes original zoom and the
-  current Map window already gives broad navigation, zoom is not justified as a
-  fidelity-preserving correction.
-- **Inference:** insurance or conservation contracts could be designed as new
-  gameplay, but storing them in unused native save bytes would be unsafe without
-  proving those bytes are unused across real saves. Adding them only to runtime
-  state would lose them on save/load. They are therefore not introduced as
-  disconnected or nonportable mechanics.
+  land are implemented. This branch adds an optional fictional conservation
+  contract for owned vacant parcels, not an implementation of USDA rules or a
+  feature verified in the original executable.
+- **Historical uncertainty:** no primary reference reviewed here establishes
+  original-game zoom. The new zoom is a usability feature and makes no claim of
+  fidelity to Maxis behavior.
+- **Engineering decision:** the optional mechanics use a versioned `.SFMX`
+  wrapper so native save bytes stay intact and new policy/contract data has
+  explicit validation and defaults. These rules are gameplay additions, not
+  historical reconstructions.
 
 ## Architecture and state flow
 
-The build script concatenates the 16 ordered sections in `src/sections.json`
+The build script concatenates the 17 ordered sections in `src/sections.json`
 into `game.js`. The sections share one private closure, so state and helper
 functions are not independently imported modules. `index.html` provides the
 canvas and save-file input. `src/16-input-and-calendar.js` handles pointer and
@@ -89,7 +164,9 @@ keyboard input, calendar advancement, and the animation loop. Rendering is in
 `src/13-land-and-tools.js`. Finance and reports live in
 `src/05-interface-and-finance.js`, inventory transactions in
 `src/06-market-and-inventory.js`, harvest settlement in `src/08-machinery.js`,
-and native save parsing/writing in `src/11-scenarios-and-saves.js`.
+and native save parsing/writing in `src/11-scenarios-and-saves.js`. Optional
+insurance and conservation terms, validation, and manager windows are in
+`src/17-crop-insurance.js`.
 
 The saved world is a byte array interpreted using offsets in
 `data/save-states.json`. Crop definitions are decoded into `data/crops.json`.
@@ -108,14 +185,22 @@ Separate arrow and edge-scroll controls provide incremental panning. Tests in
 modes, dragging, moved windows, scaling, cancellation, and that navigation
 does not charge farm funds.
 
-There is no zoom level in the current camera model. Zoom anchoring would need a
-new transform shared by rendering and all world interactions; adjusting only
-the canvas scale would make the displayed cell disagree with the cell selected
-for planting, construction, or object interaction. The historical handbook
-supports overview navigation, not a zoom feature. The implementation decision
-is to retain fixed cell size and the established Map window. A future zoom
-proposal should first define one canonical screen-to-world transform and test
-its inverse, cursor anchoring, limits, and clamping before changing rendering.
+The Edit viewport remains 544 × 368 screen pixels. A usability zoom was added
+as a deliberate nonhistorical improvement: the View menu zooms from touch
+controls, wheel input zooms around its pointer, and `+`/`-` zoom around the
+current pointer. The discrete levels are 50%, 75%, 100%, 150%, and 200%.
+`cameraCellSize()` and the inverse pointer transform are
+shared by tile drawing, map-cell hit testing, cursor outlines, palette picking,
+map overview bounds, and disaster/aircraft sprites. Camera bounds account for
+the viewport inset and visible world area. The map overview frame resizes with
+zoom; existing panning remains in map-cell increments. Zoom is transient view
+state stored only in the browser's local runtime cache; native `.SFM` and
+`.SFMX` saves do not include it. Regression tests verify the exact world
+coordinate under the pointer, map-cell hit testing after zoom, min/max levels,
+edge clamping, repeated zoom-in/out cycles, CSS viewport resizing, keyboard
+controls, and that scrolling a child window does not change farm zoom. The manual
+does not establish that the original game had zoom, so this feature is not
+presented as historical behavior.
 
 ## Economy and accounting
 
@@ -128,67 +213,86 @@ and market value, posts the contracted crop sale, updates taxable sale income,
 and credits cash. The Balance Sheet derives its revenue and expense columns
 from native counters in `src/05-interface-and-finance.js`.
 
-This review did not establish a safe, isolated accounting correction against a
-reference save or original executable. In particular, native counters with
-different units or reporting semantics should not be “fixed” by assuming they
-must match cash one-for-one. The existing test fixtures exercise eight scenario
-save round trips and many transaction flows, but they do not represent every
-farm history. Any future accounting correction should state its unit and
-transaction invariant, reproduce the issue in a fixture, and compare the
-resulting cash, ledger, and save bytes.
+The review found and corrected one transaction mismatch in stored-crop sales.
+`storedCropSalePrice()` computes the sale proceeds, and the transaction credits
+that amount to cash and taxable sales. The crop-sales ledger previously added
+twice the same amount. It now records the actual sale proceeds, so for this
+transaction `cash delta = crop-sales ledger delta = taxable-sales delta`. A
+regression assertion in `tests/save_compat.cjs` drives the sale through
+`sellInventoryEntry()` and verifies all three deltas. This is an internal
+accounting consistency correction; it is not a claim about how every original
+SimFarm edition handled that counter. Other native counters can have different
+reporting semantics and should be compared only after their units and source
+behavior are established.
 
-## Crop loss, insurance, and conservation proposal
+## Crop loss, insurance, and conservation mechanics
 
 The current game has crop losses from drought, flood, frost, tornado, locust,
-and other disasters, plus futures contracts that manage price risk. The source
-does not show a crop-insurance mechanic. The current code also does not model a
-conservation program. No gameplay or regulation is added by this review.
+and other disasters, plus futures contracts that manage price risk. REA and the
+manual review did not establish historical insurance or conservation rules.
+The mechanics below are explicit, fictional additions in this reconstruction.
 
-### Proposed optional extension format
+### Versioned `.SFMX` extension format
 
-If these mechanics are pursued, keep the native `.SFM` payload byte-for-byte
-intact and add an explicit, versioned companion format (for example `.SFMX`): a
-small header, version, original save bytes, and validated extension data. Old
-`.SFM` files would load with empty extension state; `.SFMX` round trips would
-preserve it. Do not write speculative data into unverified reserved offsets.
-This option must be validated against real legacy saves before implementation.
+`serializeFarmSaveBytes()` emits the exact fixed-size native bytes when the
+extension is empty. When extension state exists, `.SFMX` contains a 16-byte
+little-endian header (`SFMX`, version, header size, native payload size, JSON
+extension size), the unmodified native `.SFM` payload, and UTF-8 JSON extension
+state. Version 1 rejects unknown versions, incorrect lengths, malformed
+extension data, policies that do not match active saved fields, and contracts
+that do not match owned vacant parcels and the saved year. Native `.SFM` and
+`.SSM` imports receive empty extension defaults. Local saves also persist the
+extension and migrate earlier version-1 extension objects by defaulting the
+new conservation properties to empty/zero. The save compatibility suite
+round-trips all eight included native scenario fixtures and exercises both
+extensions. That is evidence for those fixtures, not every historical save.
 
-### Proposed fictional crop protection
+### Fictional crop insurance
 
-An optional policy could cover one named crop on selected farm-owned fields for
-one growing season. At enrollment, record expected yield and a reference crop
-price. Charge 5% of expected crop value as the premium. At harvest, compute
-loss as `max(0, (expected yield - actual yield) × reference price)`, subtract a
-deductible equal to 20% of expected crop value, and pay no more than 50% of
-expected crop value. Only one claim per insured field-season may settle. No
-payout occurs when actual yield meets or exceeds expected yield; invalid,
-negative, or non-finite values are rejected. The game must record premium
-expense, claim payout, and policy state separately. This is a fictional game
-rule, not an implementation of federal crop-insurance regulations.
+An active field may buy one policy tied to its saved field slot and crop slot.
+The game captures the current commodity price and calculates expected value as
+the crop's configured harvest quantity multiplied by the captured price
+divided by ten and rounded down. Premium is 5% of that value rounded up, with
+a one-credit minimum. Coverage has a 20% deductible and a payout cap of 50% of
+expected value. For actual harvest value `A` and expected value `E`, payout is
+`min(floor(0.5 × E), max(0, E - A - floor(0.2 × E)))`. Harvest completion
+settles at most one claim; flood removal settles with zero actual value. Other
+disasters affect claims through the eventual harvest value if the field
+remains. If another path removes the field before harvest, its policy is
+canceled without payout. An unaffordable premium is rejected. Premium and
+claims totals are stored in extension accounting, while cash is debited or
+credited through the game's funds state. The insurance manager shows active
+policies and totals.
 
-Required tests would cover no loss, partial and total loss, zero coverage,
-invalid policy values, unaffordable premium, payout cap, duplicate claim,
-harvest ordering, save/load round trip, and old-save defaults. Deterministic
-calculation should be separate from rendering.
+The implementation is deterministic and tests no loss, partial loss, total
+loss, zero/invalid values, unaffordable premium, payout cap, duplicate policy
+and claim handling, harvest settlement, and local/`.SFMX` persistence. These
+rules are a fictional game mechanic, not federal crop-insurance regulations or
+a claim about original SimFarm behavior.
 
-### Proposed conservation contracts
+### Fictional conservation contracts
 
-USDA FSA's current CRP description says eligible acreage is placed in
-resource-conserving cover in exchange for annual rental payments, with typical
-contracts of 10–15 years. A fictional SimFarm version could allow enrollment
-of one owned parcel that has no active field or placed building. It would
-replace the parcel with non-plantable conservation cover for three simulated
-years and pay 100 credits at the start of each simulated year. Selling an
-enrolled parcel would be blocked. Voluntary withdrawal would end future
-payments and charge one annual payment as a cancellation fee. Store the
-enrollment year, remaining term, next payment year, and parcel identity. These
-short terms and fixed payments are game abstractions, not CRP eligibility,
-rates, or regulation. The FSA overview is linked below.
+USDA FSA's [CRP overview](https://www.fsa.usda.gov/resources/conservation/conservation-reserve-program)
+describes a real program that pays eligible landowners to establish
+resource-conserving cover; its current terms and rules are not encoded here.
+The fictional game mechanic allows enrollment of one owned 8 × 8 parcel (64
+map cells) if it contains no active field or building. Enrollment pays 100
+credits immediately; 100 more is paid at the beginning of each of the next two
+simulated years. The contract expires at the beginning of the fourth year
+counting enrollment year, after three total payments. Fields, construction,
+terrain tools, bulldozing, and land sale are blocked on enrolled cells/parcels;
+the farm map adds a translucent green cover tint. Withdrawal is allowed without
+a fee and ends future payments. Enrolled land must be vacant when loading an
+`.SFMX` contract. The manager shows eligible and
+active parcels, payments, and the withdraw/enroll action.
 
-Because native save bytes and compatibility are central to the reconstruction,
-these additions should wait for a tested versioned extension design. The
-`.SFMX` container above is a concrete alternative that can preserve old saves
-without conflating new gameplay state with native bytes.
+The three-year term, fixed payment, acreage unit, immediate first payment, and
+no-penalty withdrawal are simplified game choices. They do not reproduce CRP
+eligibility, rates, enrollment procedures, or regulations. Regression tests
+cover eligibility on an owned vacant parcel, enrollment, payment timing,
+expiration, withdrawal, land restrictions, malformed ownership on import,
+local/native-extension round trips, and pixel-level tint compositing with the
+real Canvas2D harness.
 
 ## Save compatibility and testing
 
@@ -199,27 +303,27 @@ serialized season, process-only state, malformed imports, local cache failures,
 and export failures. This supports compatibility with those fixtures only; it
 does not prove every historical `.SFM` variant is compatible.
 
-`npm ci`, `npm run format:check`, `npm test`, and `npm run build` passed. The test
-command passed all nine suites, including generated-bundle consistency,
-JavaScript syntax, save compatibility, field placement, machinery, weather,
-crop loading, lifecycle, window behavior, and basic map gameplay. The first
-format-check attempt failed because the local `prettier` executable was absent;
-installing the locked development dependencies resolved it. Interactive
-browser testing was not performed as part of this headless review.
+On 2026-10-19, `npm run format:check`, `npm test`, `npm run build`,
+`npm run build:web`, and `git diff --check` passed after implementing insurance,
+conservation, and zoom rendering. A clean extraction of the pre-change `HEAD`
+also passed its original nine-suite `npm test` baseline. The current test command
+passed all ten suites, including generated-bundle consistency and JavaScript
+syntax, native save compatibility, crop-sale accounting, insurance
+boundaries, conservation payments/expiry/withdrawal and extension validation,
+field placement, machinery, weather, crop loading, lifecycle, window behavior,
+and basic map gameplay. The tenth suite uses the real Canvas2D harness to verify
+the conservation tint pixel over the static scenario image. Interactive browser
+testing has not been performed.
 
 ## Limitations and next work
 
 1. Obtain and test additional legally accessible native save fixtures from
    multiple versions and platforms before making broader compatibility claims.
-2. Build an instrumented transaction harness that records cash and each ledger
-   before and after representative purchases, sales, futures, and taxes.
-3. If zoom is desired as a new nonhistorical option, implement a shared camera
-   transform and migrate every drawing and input consumer together.
-4. Implement optional insurance or conservation only after the versioned save
-   extension format has a migration policy, user-facing explanation, and full
-   regression coverage.
-5. Run a browser smoke test on desktop and touch layouts after camera or input
-   changes; the Node harnesses do not replace visual play testing.
+2. Extend the instrumented transaction harness to compare cash and each ledger
+   for representative purchases, machinery and land sales, futures, and taxes.
+3. Run a browser smoke test on desktop and touch layouts for the Programs
+   windows, zoom controls, and `.SFMX` file workflow; the Node harnesses do not
+   replace visual play testing.
 
 ## References
 

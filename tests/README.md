@@ -11,6 +11,7 @@ The ten suites cover:
 - Crop storage, prices, restrictions, and save bytes.
 - Startup timing and About credits.
 - Window dragging, ordering, closing, and scaled pointer coordinates.
+- Child-window stacking, menu controls, and native title behavior.
 - Map navigation, input cancellation, frame animation, and Pause/resume.
 - Actual Canvas2D rendering of the conservation tint over a static scenario map.
 
