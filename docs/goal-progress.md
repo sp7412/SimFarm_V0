@@ -1,26 +1,28 @@
 # Active Goal Checkpoint
 
-Updated 2026-10-19 after pushing implementation and documentation commits. Resume the full
-SimFarm engineering mission from this worktree; preserve all edits and keep the
-pull request unmerged.
+Updated 2026-10-19 after push and PR/CI verification. Resume the SimFarm mission
+from this worktree; preserve all edits and keep the pull request unmerged.
 
 ## Git state and preservation
 
 - Repository: `/workspaces/SimFarm_V0`; branch:
   `codex/simfarm-improvements`.
-- HEAD and `origin/codex/simfarm-improvements`: `f465f12` — `Document REA
-  findings and save extension behavior`. Implementation/tests are in
-  `f7f62eb` — `Add zoom, crop insurance, and conservation mechanics`. Upstream
-  `main` is `3fec6a6`. The branch has been pushed.
+- Branch: `codex/simfarm-improvements`, pushed to `origin`; this checkpoint
+  update is the new branch tip. The implementation/tests commit is `f7f62eb`
+  (`Add zoom, crop insurance, and conservation mechanics`), the documentation
+  commit is `f465f12` (`Document REA findings and save extension behavior`), and
+  the prior CI checkpoint is `bc62453` (`Record SimFarm CI approval gate`).
+  Upstream `main` is `3fec6a6`.
 - PR #1 is open at https://github.com/worldengine-space/SimFarm_V0/pull/1,
-  base `main`, head `codex/simfarm-improvements` at `f465f12`; its title and body
-  were updated with the full scope and validation. At this SHA the Check, Windows,
-  iOS, and Android workflows all completed as `action_required` with zero jobs;
-  this is a GitHub approval gate, not a reported test failure. The workflow
+  base `main`, head `codex/simfarm-improvements` at `bc62453`; its title and body
+  were updated with the full scope, commits, validation, and CI blocker. At code
+  head `f465f12`, the Check, Windows, iOS, and Android workflows all completed
+  as `action_required` with zero jobs. The latest checkpoint-only head has no
+  check runs listed. This is an approval gate, not a test failure; the workflow
   approval endpoint returned HTTP 403 `Resource not accessible by integration`.
-  PR status is `UNSTABLE`; recheck after any new push.
-- Only the unrelated Android test edit and this progress-file update remain in
-  the worktree; the Android edit stays unstaged and excluded.
+  PR is open and unmerged; merge state is `UNSTABLE`.
+- The only remaining worktree change is the unrelated Android test edit. It stays
+  unstaged and excluded; mission changes are committed and pushed.
 - Preserve and exclude `platforms/android/app/src/androidTest/java/space/worldengine/simfarm/LaunchSmokeTest.java`
   from commits. Its existing unrelated change adds a `∏` character after the
   Activity import. No other unrelated edits have been identified.
@@ -76,18 +78,19 @@ After the latest code changes, these commands passed on 2026-10-19:
 The web build and Node/Canvas harness ran, but no local Chromium/Firefox or
 Playwright/Puppeteer is installed; interactive browser/device testing was not
 performed. Android SDK is not configured. Swift, Xcode, and XcodeGen are
-unavailable, so iOS native compilation needs CI or macOS. Java and Gradle are present. GitHub Actions created pull-request runs, but
-all four were blocked before job creation by `action_required`; details are
-recorded above. Local validation passes independently.
+unavailable, so iOS native compilation needs CI or macOS. Java and Gradle are
+present. GitHub Actions created pull-request runs, but all four were blocked
+before job creation by `action_required`; details are recorded above. Local
+validation passes independently.
 
 ## Remaining lifecycle
 
-1. Commit and push this final checkpoint update, excluding the unrelated Android
-   test edit.
-2. Recheck PR head/base and CI after that push. The only external gate is
-   maintainer approval for the four `action_required` workflows; the integration
-   cannot approve them (403). Do not request approval by messaging maintainers.
-3. Leave PR #1 unmerged. Audit the original Goal criteria and report the exact
-   external CI gate plus the completed local evidence. Additional historical
-   save fixtures and interactive desktop/touch play remain useful follow-up
-   validation beyond the eight included fixtures and current headless evidence.
+1. All independent implementation, research, test, documentation, review, commit,
+   push, and PR-update work is complete. The external completion gate is a
+   repository maintainer approving the four GitHub Actions workflows; this
+   integration cannot do so (403). Do not message maintainers.
+2. Leave PR #1 open and unmerged. Re-run its workflows after the repository
+   approval becomes available, then verify the final check results. Additional
+   historical save fixtures and interactive desktop/touch play are documented as
+   useful follow-up validation beyond the eight included fixtures and current
+   headless evidence.
