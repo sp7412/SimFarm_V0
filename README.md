@@ -98,6 +98,10 @@ Use `npm run format` to format the code and `npm run format:check` to check form
 
 See the [code guide](docs/CODE_GUIDE.md) for a map of the source and notes on the simulation's structure.
 
+See the [technical and research notes](docs/TECHNICAL-WHITEPAPER.md) for the
+camera and save architecture, historical sources, accounting review, and
+proposals for optional mechanics that would need versioned save support.
+
 | Path | Purpose |
 | --- | --- |
 | `index.html`, `styles.css` | Browser page and canvas layout |
