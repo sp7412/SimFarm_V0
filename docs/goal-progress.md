@@ -8,19 +8,21 @@ from this worktree; preserve all edits and keep the pull request unmerged.
 - Repository: `/workspaces/SimFarm_V0`; branch:
   `codex/simfarm-improvements`.
 - Branch: `codex/simfarm-improvements`, pushed to `origin`; this checkpoint
-  update is the new branch tip. The implementation/tests commit is `f7f62eb`
-  (`Add zoom, crop insurance, and conservation mechanics`), the documentation
-  commit is `f465f12` (`Document REA findings and save extension behavior`), and
-  the prior CI checkpoint is `bc62453` (`Record SimFarm CI approval gate`).
-  Upstream `main` is `3fec6a6`.
+  checkpoint update is committed and pushed. Implementation/tests: `f7f62eb`
+  (`Add zoom, crop insurance, and conservation mechanics`); documentation:
+  `f465f12` (`Document REA findings and save extension behavior`); CI
+  checkpoint: `bc62453`; prior checkpoint: `3f3833a`. Upstream `main` is
+  `3fec6a6`.
 - PR #1 is open at https://github.com/worldengine-space/SimFarm_V0/pull/1,
-  base `main`, head `codex/simfarm-improvements` at `bc62453`; its title and body
-  were updated with the full scope, commits, validation, and CI blocker. At code
-  head `f465f12`, the Check, Windows, iOS, and Android workflows all completed
-  as `action_required` with zero jobs. The latest checkpoint-only head has no
-  check runs listed. This is an approval gate, not a test failure; the workflow
-  approval endpoint returned HTTP 403 `Resource not accessible by integration`.
-  PR is open and unmerged; merge state is `UNSTABLE`.
+  base `main`, head matched the feature branch at `3f3833a` when last checked;
+  its title and body include scope, commits, validation, and the CI blocker. At
+  both code-bearing PR head `f465f12` and checkpoint head `3f3833a`, Check,
+  Windows, iOS, and Android all concluded `action_required` with zero jobs. The
+  latest observed run IDs were 39196966809 (Check), 39196966801 (Windows),
+  39196966851 (iOS), and 39196966802 (Android). This is an approval gate, not a
+  test failure; the workflow approval endpoint returned HTTP 403 `Resource not
+  accessible by integration`. PR remains open and unmerged; merge state was
+  `UNSTABLE`.
 - The only remaining worktree change is the unrelated Android test edit. It stays
   unstaged and excluded; mission changes are committed and pushed.
 - Preserve and exclude `platforms/android/app/src/androidTest/java/space/worldengine/simfarm/LaunchSmokeTest.java`
