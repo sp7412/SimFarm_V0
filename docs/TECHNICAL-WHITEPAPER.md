@@ -48,13 +48,31 @@ proof the feature was absent from every edition.
 
 ### Other public implementations
 
-GitHub search surfaced [dkim0419/SimFarm](https://github.com/dkim0419/SimFarm),
-a 2014 C# classroom project. Its description and file listing identify a
-separate grid-based application, rather than a reconstruction of Maxis SimFarm.
-It has no implementation or save-format work suitable for direct adaptation.
-Search did not surface a licensed, compatible decompilation or reconstruction
-that would improve this code. No third-party code was copied and no dependency
-was added.
+Two public projects were reviewed and their roles are distinct:
+
+- [dkim0419/SimFarm](https://github.com/dkim0419/SimFarm) is a 2014 C#
+  classroom project with a separate grid-based application; it is not a
+  compatible source for this reconstruction's Canvas implementation.
+- [petejkim/simfarm](https://github.com/petejkim/simfarm) is a separate
+  TypeScript/React/Vite browser remake. Its README documents touch input,
+  terrain pinch and Ctrl+wheel zoom, overview-map centering, and selected
+  gameplay corrections. Its [gameplay correction ledger](https://github.com/petejkim/simfarm/blob/main/docs/gameplay-bug-fixes.md)
+  and [binary evidence notes](https://github.com/petejkim/simfarm/blob/main/docs/reverse-engineering.md)
+  are useful comparative research, especially for crop-income accounting,
+  loan arrears, stored-crop behavior, and source-backed reverse-engineering
+  practices. Its [license](https://github.com/petejkim/simfarm/blob/main/LICENSE)
+  declares CC0 1.0 for the repository's covered work; that does not grant
+  rights to original SimFarm assets or third-party materials.
+
+The reference implementation uses a different UI framework, state model, and
+save format, so its React components and native checkpoint implementation are
+not directly portable to this project's shared-scope JavaScript/Canvas
+architecture. The current branch's zoom, stored-crop accounting correction,
+and optional SFMX extension were implemented in the target code and tested
+there; this review does not claim that their code was copied from Pete Kim's
+project. The reference is used as a comparative source for additional audit
+candidates and test ideas, not as proof that every behavior matches the
+original DOS game. No code or assets were copied from these repositories.
 
 ### REA and the original executable
 
