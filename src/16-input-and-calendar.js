@@ -1356,6 +1356,23 @@ canvas.addEventListener("keydown", (event) => {
     event.preventDefault();
     return;
   }
+  if (
+    stage === "game" &&
+    !modalNotice &&
+    !activeWindow &&
+    currentMenu === null &&
+    !event.ctrlKey &&
+    !event.altKey &&
+    !event.metaKey &&
+    (event.key === " " || event.code === "Space")
+  ) {
+    const speedMenu = menus.find((menu) => menu.name === "Speed");
+    const nextSpeed = state.speed === "Pause" ? "Normal" : "Pause";
+    if (speedMenu) activateMenuItem(speedMenu, nextSpeed);
+    render();
+    event.preventDefault();
+    return;
+  }
   // The native root handler returns immediately for every Ctrl-modified
   // BIOS key, before dispatching to the active child. T/V post retail
   // QMESSAGE records, J/X retain their missing-file no-op, and the debug

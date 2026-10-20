@@ -67,9 +67,10 @@ The interface follows the original mouse controls, including press-and-drag tool
 menus and some hold-to-view help controls. Click the game to give it keyboard
 focus and enable browser audio. Use **View → Zoom In / Zoom Out / Reset Zoom**
 to change zoom on touch screens, or use the mouse wheel over the farm to zoom
-around the pointer. Press `+` / `-` to zoom around the current pointer. Five
-levels range from 50% to 200%; panning, map navigation, placement, and hit
-testing use the same camera transform.
+around the pointer. Press `+` / `-` to zoom around the current pointer. Press
+**Space** to pause or resume at Normal speed; touch players can use **Pause /
+Resume** in the toolbar. Five levels range from 50% to 200%; panning, map
+navigation, placement, and hit testing use the same camera transform.
 
 ## Screenshots
 
